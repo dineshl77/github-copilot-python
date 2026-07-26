@@ -53,23 +53,30 @@ def count_solutions(board, limit=2):
 
 
 def remove_cells(board, clues):
-    """Remove cells only when the puzzle still has exactly one solution."""
+    """Remove cells while ensuring the puzzle always has exactly one solution."""
     cells = [(row, col) for row in range(SIZE) for col in range(SIZE)]
     random.shuffle(cells)
 
     for row, col in cells:
+
+        # Stop when the target clue count is reached.
+        current_clues = sum(
+            cell != EMPTY
+            for row_values in board
+            for cell in row_values
+        )
+        if current_clues <= clues:
+            break
+
         if board[row][col] == EMPTY:
             continue
 
         original_value = board[row][col]
         board[row][col] = EMPTY
-        if count_solutions(board) != 1:
+
+        # Keep the removal only if the puzzle still has exactly one solution.
+        if count_solutions(deep_copy(board), limit=2) != 1:
             board[row][col] = original_value
-            continue
-
-        if sum(cell != EMPTY for row_values in board for cell in row_values) <= clues:
-            break
-
 
 def generate_puzzle(clues=35, difficulty=None):
     """Generate a playable puzzle and its solved board."""

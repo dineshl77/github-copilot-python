@@ -41,7 +41,8 @@ def test_generate_puzzle_for_each_difficulty_has_unique_solution():
     difficulty_specs = [("easy", 45), ("medium", 35), ("hard", 25)]
 
     for difficulty, expected_clues in difficulty_specs:
-        for _ in range(3):
+        for _ in range(5):
             puzzle, _ = sudoku_logic.generate_puzzle(difficulty=difficulty)
-            assert count_solutions(puzzle) == 1
+
+            assert count_solutions(puzzle, limit=2) == 1
             assert sum(cell != 0 for row in puzzle for cell in row) == expected_clues
