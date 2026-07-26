@@ -110,7 +110,7 @@ h1 {
     outline: none;
     background: var(--cell-bg);
     color: var(--text-color);
-    transition: background 0.2s;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
     box-sizing: border-box;
 }
 
@@ -133,29 +133,33 @@ h1 {
 }
 
 .sudoku-cell:focus {
-    background: var(--input-focus);
+    background-color: var(--input-focus);
+    border-color: var(--button-bg);
+    box-shadow: inset 0 0 0 1px var(--button-bg);
 }
 
 .sudoku-cell.prefilled {
-    background: var(--prefilled-bg);
-    font-weight: bold;
+    background-color: var(--prefilled-bg);
+    font-weight: 700;
     color: var(--prefilled-text);
 }
 
 .sudoku-cell.incorrect {
-    background: #ffcdd2;
+    background-color: #ffe4e6;
+    color: #7f1d1d;
 }
 
 .sudoku-cell.invalid {
-    background: #ffcdd2;
+    background-color: #ffe4e6;
     border-color: #d32f2f;
     box-shadow: inset 0 0 0 2px #d32f2f;
+    color: #7f1d1d;
 }
 
 .sudoku-cell.hinted {
-    background: #dcedc8;
-    font-weight: bold;
-    color: #2e7d32;
+    background-color: #e8f5e9;
+    font-weight: 700;
+    color: #1b5e20;
 }
 
 .sudoku-cell:nth-child(3),
@@ -229,7 +233,7 @@ button:hover {
 }
 
 .leaderboard {
-    width: min(100%, 480px);
+    width: min(100%, 560px);
     margin: 20px auto 0;
     padding: 16px;
     background: var(--leaderboard-bg);
@@ -244,14 +248,36 @@ button:hover {
     color: var(--text-color);
 }
 
-.leaderboard ol {
-    margin: 0;
-    padding-left: 20px;
-    text-align: left;
+.leaderboard-table-wrap {
+    overflow-x: auto;
 }
 
-.leaderboard li {
-    margin: 6px 0;
+.leaderboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 320px;
+}
+
+.leaderboard-table th,
+.leaderboard-table td {
+    padding: 10px 8px;
+    border-bottom: 1px solid var(--leaderboard-border);
+    text-align: left;
+    color: var(--leaderboard-text);
+}
+
+.leaderboard-table th {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.leaderboard-table tr:nth-child(even) {
+    background: rgba(25, 118, 210, 0.05);
+}
+
+.leaderboard-empty {
+    text-align: center;
     color: var(--leaderboard-text);
 }
 

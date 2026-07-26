@@ -4,7 +4,14 @@ import copy
 import random
 
 from solver import fill_board
-from validator import EMPTY, SIZE
+from validator import EMPTY, SIZE, is_safe
+
+
+DIFFICULTY_CLUES = {
+    "easy": 45,
+    "medium": 35,
+    "hard": 25,
+}
 
 
 def deep_copy(board):
@@ -17,22 +24,67 @@ def create_empty_board():
     return [[EMPTY for _ in range(SIZE)] for _ in range(SIZE)]
 
 
+def count_solutions(board, limit=2):
+    """Count solutions for a Sudoku board, stopping after the limit is reached."""
+    working_board = deep_copy(board)
+    solutions = 0
+
+    def search():
+        nonlocal solutions
+        if solutions >= limit:
+            return
+
+        for row in range(SIZE):
+            for col in range(SIZE):
+                if working_board[row][col] == EMPTY:
+                    for candidate in range(1, SIZE + 1):
+                        if is_safe(working_board, row, col, candidate):
+                            working_board[row][col] = candidate
+                            search()
+                            working_board[row][col] = EMPTY
+                            if solutions >= limit:
+                                return
+                    return
+
+        solutions += 1
+
+    search()
+    return solutions
+
+
 def remove_cells(board, clues):
-    """Remove cells from a completed board until the clue count is reached."""
-    attempts = SIZE * SIZE - clues
-    while attempts > 0:
-        row = random.randrange(SIZE)
-        col = random.randrange(SIZE)
-        if board[row][col] != EMPTY:
-            board[row][col] = EMPTY
-            attempts -= 1
+    """Remove cells only when the puzzle still has exactly one solution."""
+    cells = [(row, col) for row in range(SIZE) for col in range(SIZE)]
+    random.shuffle(cells)
+
+    for row, col in cells:
+        if board[row][col] == EMPTY:
+            continue
+
+        original_value = board[row][col]
+        board[row][col] = EMPTY
+        if count_solutions(board) != 1:
+            board[row][col] = original_value
+            continue
+
+        if sum(cell != EMPTY for row_values in board for cell in row_values) <= clues:
+            break
 
 
-def generate_puzzle(clues=35):
+def generate_puzzle(clues=35, difficulty=None):
     """Generate a playable puzzle and its solved board."""
-    board = create_empty_board()
-    fill_board(board)
-    solution = deep_copy(board)
-    remove_cells(board, clues)
-    puzzle = deep_copy(board)
+    if difficulty is not None:
+        difficulty = difficulty.lower()
+        clues = DIFFICULTY_CLUES.get(difficulty, clues)
+
+    for _ in range(100):
+        board = create_empty_board()
+        fill_board(board)
+        solution = deep_copy(board)
+        puzzle = deep_copy(board)
+        remove_cells(puzzle, clues)
+
+        if sum(cell != EMPTY for row_values in puzzle for cell in row_values) == clues:
+            return puzzle, solution
+
     return puzzle, solution

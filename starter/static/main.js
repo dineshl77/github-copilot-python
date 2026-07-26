@@ -59,40 +59,52 @@ function getLeaderboard() {
 
 function saveLeaderboardEntry() {
   const playerName = window.prompt('Enter your name for the leaderboard:');
-  if (!playerName) {
+  const trimmedName = playerName ? playerName.trim() : '';
+  if (!trimmedName) {
     return;
   }
 
   const leaderboard = getLeaderboard();
   leaderboard.push({
-    name: playerName.trim(),
+    name: trimmedName,
     time: elapsedSeconds,
     difficulty,
     hintsUsed
   });
 
-  leaderboard.sort((a, b) => a.time - b.time);
+  leaderboard.sort((a, b) => a.time - b.time || a.name.localeCompare(b.name));
   const trimmed = leaderboard.slice(0, 10);
   localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(trimmed));
   renderLeaderboard();
 }
 
 function renderLeaderboard() {
-  const list = document.getElementById('leaderboard-list');
+  const body = document.getElementById('leaderboard-body');
+  if (!body) {
+    return;
+  }
+
   const leaderboard = getLeaderboard();
-  list.innerHTML = '';
+  body.innerHTML = '';
 
   if (leaderboard.length === 0) {
-    const item = document.createElement('li');
-    item.textContent = 'No scores yet';
-    list.appendChild(item);
+    const row = document.createElement('tr');
+    row.innerHTML = '<td colspan="5" class="leaderboard-empty">No scores yet</td>';
+    body.appendChild(row);
     return;
   }
 
   leaderboard.forEach((entry, index) => {
-    const item = document.createElement('li');
-    item.textContent = `${index + 1}. ${entry.name} - ${formatTime(entry.time)} - ${entry.difficulty.charAt(0).toUpperCase() + entry.difficulty.slice(1)} - Hints: ${entry.hintsUsed}`;
-    list.appendChild(item);
+    const row = document.createElement('tr');
+    const difficultyLabel = entry.difficulty.charAt(0).toUpperCase() + entry.difficulty.slice(1);
+    row.innerHTML = `
+      <td>${index + 1}</td>
+      <td>${entry.name}</td>
+      <td>${formatTime(entry.time)}</td>
+      <td>${difficultyLabel}</td>
+      <td>${entry.hintsUsed}</td>
+    `;
+    body.appendChild(row);
   });
 }
 
